@@ -186,16 +186,28 @@ DATASETS = {
         DEVKIT_DIR:
             _DATA_DIR + '/VOC2012/VOCdevkit2012'
     },
-    'hospital_train': {
+    'hospital_train_RGB': {
         IM_DIR:
-            _DATA_DIR + '/hospital_people/images',
+            _DATA_DIR + '/hospital_people/images_RGB',
         ANN_FN:
-            _DATA_DIR + '/hospital_people/annotations/train.json'
+            _DATA_DIR + '/hospital_people/annotations/train_RGB.json'
     },
-    'hospital_test': {
+    'hospital_test_RGB': {
         IM_DIR:
-            _DATA_DIR + '/hospital_people/images',
+            _DATA_DIR + '/hospital_people/images_RGB',
         ANN_FN:
-            _DATA_DIR + '/hospital_people/annotations/test.json'
+            _DATA_DIR + '/hospital_people/annotations/test_RGB.json'
+    },    
+    'hospital_train_DepthJet': {
+        IM_DIR:
+            _DATA_DIR + '/hospital_people/images_DepthJet',
+        ANN_FN:
+            _DATA_DIR + '/hospital_people/annotations/train_DepthJet.json'
+    },
+    'hospital_test_DepthJet': {
+        IM_DIR:
+            _DATA_DIR + '/hospital_people/images_DepthJet',
+        ANN_FN:
+            _DATA_DIR + '/hospital_people/annotations/test_DepthJet.json'
     }
 }

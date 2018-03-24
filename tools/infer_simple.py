@@ -41,6 +41,7 @@ from core.config import merge_cfg_from_file
 from utils.timer import Timer
 import core.test_engine as infer_engine
 import datasets.dummy_datasets as dummy_datasets
+from datasets.json_dataset import JsonDataset
 import utils.c2 as c2_utils
 import utils.logging
 import utils.vis as vis_utils
@@ -82,6 +83,20 @@ def parse_args():
         type=str
     )
     parser.add_argument(
+        '--dataset',
+        dest='json_dataset',
+        help='dataset description for evaluation',
+        default='coco_2014_val',
+        type=str
+    )
+    parser.add_argument(
+        '--image-set',
+        dest='imageset',
+        help='image set text file',
+        default=None,
+        type=str
+    )
+    parser.add_argument(
         'im_or_folder', help='image or folder of images', default=None
     )
     if len(sys.argv) == 1:
@@ -97,12 +112,21 @@ def main(args):
     cfg.NUM_GPUS = 1
     assert_and_infer_cfg()
     model = infer_engine.initialize_model_from_cfg()
-    dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    #dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    dataset = JsonDataset(args.json_dataset)
 
-    if os.path.isdir(args.im_or_folder):
-        im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
+    if args.imageset is not None:
+        if not os.path.isdir(args.im_or_folder):
+            logger.error('You need to specify an image folder with the imageset argument')
+            exit(1)
+        im_list = open(args.imageset).read().split('\n')
+        im_list = [(args.im_or_folder + s + '.' + args.image_ext) for s in im_list if s != '']
+
     else:
-        im_list = [args.im_or_folder]
+        if os.path.isdir(args.im_or_folder):
+            im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
+        else:
+            im_list = [args.im_or_folder]
 
     for i, im_name in enumerate(im_list):
         out_name = os.path.join(
@@ -132,11 +156,12 @@ def main(args):
             cls_boxes,
             cls_segms,
             cls_keyps,
-            dataset=dummy_coco_dataset,
+            dataset=dataset,
             box_alpha=0.3,
             show_class=True,
             thresh=0.7,
-            kp_thresh=2
+            kp_thresh=2,
+            ext='png'
         )
 
 

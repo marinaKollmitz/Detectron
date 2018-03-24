@@ -112,7 +112,8 @@ def get_rpn_box_proposals(im, args):
 
 
 def main(args):
-    dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    dummy_coco_dataset = json_dataset("hospital_test")
+    #dummy_coco_dataset = dummy_datasets.get_coco_dataset()
     cfg_orig = yaml.load(yaml.dump(cfg))
     im = cv2.imread(args.im_file)
 

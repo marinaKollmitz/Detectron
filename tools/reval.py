@@ -87,9 +87,10 @@ def do_reval(dataset_name, output_dir, args):
     dataset = JsonDataset(dataset_name)
     with open(os.path.join(output_dir, 'detections.pkl'), 'rb') as f:
         dets = pickle.load(f)
-    # Override config with the one saved in the detections file
+    # Marina: Use config file from args if provided
     if args.cfg_file is not None:
-        core.config.merge_cfg_from_cfg(yaml.load(dets['cfg']))
+        print('using config file: ', args.cfg_file)
+        core.config.merge_cfg_from_file(args.cfg_file)
     else:
         core.config._merge_a_into_b(yaml.load(dets['cfg']), cfg)
     results = task_evaluation.evaluate_all(

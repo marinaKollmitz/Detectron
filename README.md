@@ -1,3 +1,7 @@
+# DetectronDistance
+
+This repository is a fork of Facebook's Detectron software system. It introduces an additional output for bounding box regression which estimates the distance of the object in a bounding box from the camera. We use this output to enable 3D people detection from RGB image data as part of the NaRKo project, see [mobility aids homepage](http://mobility-aids.informatik.uni-freiburg.de/).
+
 # Detectron
 
 Detectron is Facebook AI Research's software system that implements state-of-the-art object detection algorithms, including [Mask R-CNN](https://arxiv.org/abs/1703.06870). It is written in Python and powered by the [Caffe2](https://github.com/caffe2/caffe2) deep learning framework.

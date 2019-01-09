@@ -37,170 +37,29 @@ _RAW_DIR = 'raw_dir'
 
 # Available datasets
 _DATASETS = {
-    'cityscapes_fine_instanceonly_seg_train': {
+    'mobilityaids_RGB_train': {
         _IM_DIR:
-            _DATA_DIR + '/cityscapes/images',
+            _DATA_DIR + '/mobility-aids/Images_RGB',
         _ANN_FN:
-            _DATA_DIR + '/cityscapes/annotations/instancesonly_gtFine_train.json',
-        _RAW_DIR:
-            _DATA_DIR + '/cityscapes/raw'
+            _DATA_DIR + '/mobility-aids/annotations/train_RGB.json',
     },
-    'cityscapes_fine_instanceonly_seg_val': {
+    'mobilityaids_Depthjet_train': {
         _IM_DIR:
-            _DATA_DIR + '/cityscapes/images',
-        # use filtered validation as there is an issue converting contours
+            _DATA_DIR + '/mobility-aids/Images_DepthJet',
         _ANN_FN:
-            _DATA_DIR + '/cityscapes/annotations/instancesonly_filtered_gtFine_val.json',
-        _RAW_DIR:
-            _DATA_DIR + '/cityscapes/raw'
+            _DATA_DIR + '/mobility-aids/annotations/train_DepthJet.json',
     },
-    'cityscapes_fine_instanceonly_seg_test': {
+    'mobilityaids_RGB_test': {
         _IM_DIR:
-            _DATA_DIR + '/cityscapes/images',
+            _DATA_DIR + '/mobility-aids/Images_RGB',
         _ANN_FN:
-            _DATA_DIR + '/cityscapes/annotations/instancesonly_gtFine_test.json',
-        _RAW_DIR:
-            _DATA_DIR + '/cityscapes/raw'
+            _DATA_DIR + '/mobility-aids/annotations/test_RGB.json',
     },
-    'coco_2014_train': {
+    'mobilityaids_Depthjet_test': {
         _IM_DIR:
-            _DATA_DIR + '/coco/coco_train2014',
+            _DATA_DIR + '/mobility-aids/Images_DepthJet',
         _ANN_FN:
-            _DATA_DIR + '/coco/annotations/instances_train2014.json'
-    },
-    'coco_2014_val': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/instances_val2014.json'
-    },
-    'coco_2014_minival': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/instances_minival2014.json'
-    },
-    'coco_2014_valminusminival': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/instances_valminusminival2014.json'
-    },
-    'coco_2015_test': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test2015.json'
-    },
-    'coco_2015_test-dev': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test-dev2015.json'
-    },
-    'coco_2017_test': {  # 2017 test uses 2015 test images
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test2017.json',
-        _IM_PREFIX:
-            'COCO_test2015_'
-    },
-    'coco_2017_test-dev': {  # 2017 test-dev uses 2015 test images
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test-dev2017.json',
-        _IM_PREFIX:
-            'COCO_test2015_'
-    },
-    'coco_stuff_train': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_train2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/coco_stuff_train.json'
-    },
-    'coco_stuff_val': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/coco_stuff_val.json'
-    },
-    'keypoints_coco_2014_train': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_train2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/person_keypoints_train2014.json'
-    },
-    'keypoints_coco_2014_val': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/person_keypoints_val2014.json'
-    },
-    'keypoints_coco_2014_minival': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/person_keypoints_minival2014.json'
-    },
-    'keypoints_coco_2014_valminusminival': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_val2014',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/person_keypoints_valminusminival2014.json'
-    },
-    'keypoints_coco_2015_test': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test2015.json'
-    },
-    'keypoints_coco_2015_test-dev': {
-        _IM_DIR:
-            _DATA_DIR + '/coco/coco_test2015',
-        _ANN_FN:
-            _DATA_DIR + '/coco/annotations/image_info_test-dev2015.json'
-    },
-    'voc_2007_train': {
-        _IM_DIR:
-            _DATA_DIR + '/VOC2007/JPEGImages',
-        _ANN_FN:
-            _DATA_DIR + '/VOC2007/annotations/voc_2007_train.json',
-        _DEVKIT_DIR:
-            _DATA_DIR + '/VOC2007/VOCdevkit2007'
-    },
-    'voc_2007_val': {
-        _IM_DIR:
-            _DATA_DIR + '/VOC2007/JPEGImages',
-        _ANN_FN:
-            _DATA_DIR + '/VOC2007/annotations/voc_2007_val.json',
-        _DEVKIT_DIR:
-            _DATA_DIR + '/VOC2007/VOCdevkit2007'
-    },
-    'voc_2007_test': {
-        _IM_DIR:
-            _DATA_DIR + '/VOC2007/JPEGImages',
-        _ANN_FN:
-            _DATA_DIR + '/VOC2007/annotations/voc_2007_test.json',
-        _DEVKIT_DIR:
-            _DATA_DIR + '/VOC2007/VOCdevkit2007'
-    },
-    'voc_2012_train': {
-        _IM_DIR:
-            _DATA_DIR + '/VOC2012/JPEGImages',
-        _ANN_FN:
-            _DATA_DIR + '/VOC2012/annotations/voc_2012_train.json',
-        _DEVKIT_DIR:
-            _DATA_DIR + '/VOC2012/VOCdevkit2012'
-    },
-    'voc_2012_val': {
-        _IM_DIR:
-            _DATA_DIR + '/VOC2012/JPEGImages',
-        _ANN_FN:
-            _DATA_DIR + '/VOC2012/annotations/voc_2012_val.json',
-        _DEVKIT_DIR:
-            _DATA_DIR + '/VOC2012/VOCdevkit2012'
+            _DATA_DIR + '/mobility-aids/annotations/test_DepthJet.json',
     }
 }
 

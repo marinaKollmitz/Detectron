@@ -13,12 +13,13 @@
 # limitations under the License.
 ##############################################################################
 
-"""Various network "heads" for classification and bounding box prediction.
+"""Various network "heads" for classification, bounding box and camera distance 
+prediction.
 
 The design is as follows:
 
 ... -> RoI ----\                               /-> box cls output -> cls loss
-                -> RoIFeatureXform -> box head
+                -> RoIFeatureXform -> box head  -> depth reg output -> depth reg loss
 ... -> Feature /                               \-> box reg output -> reg loss
        Map
 
@@ -44,7 +45,8 @@ import detectron.utils.blob as blob_utils
 # ---------------------------------------------------------------------------- #
 
 def add_fast_rcnn_outputs(model, blob_in, dim):
-    """Add RoI classification and bounding box regression output ops."""
+    """Add RoI classification and bounding box and centroid depth regression output 
+    ops."""
     # Box classification layer
     model.FC(
         blob_in,
@@ -58,10 +60,11 @@ def add_fast_rcnn_outputs(model, blob_in, dim):
         # Only add softmax when testing; during training the softmax is combined
         # with the label cross entropy loss for numerical stability
         model.Softmax('cls_score', 'cls_prob', engine='CUDNN')
-    # Box regression layer
+    # regression layers
     num_bbox_reg_classes = (
         2 if cfg.MODEL.CLS_AGNOSTIC_BBOX_REG else model.num_classes
     )
+    # bbox regression layer
     model.FC(
         blob_in,
         'bbox_pred',
@@ -70,10 +73,20 @@ def add_fast_rcnn_outputs(model, blob_in, dim):
         weight_init=gauss_fill(0.001),
         bias_init=const_fill(0.0)
     )
+    # centroid depth regression layer
+    model.FC(
+        blob_in,
+        'depth_pred',
+        dim,
+        num_bbox_reg_classes,
+        weight_init=gauss_fill(0.001),
+        bias_init=const_fill(0.0)
+    )
 
 
 def add_fast_rcnn_losses(model):
-    """Add losses for RoI classification and bounding box regression."""
+    """Add losses for RoI classification and bounding box and centroid depth 
+    regression."""
     cls_prob, loss_cls = model.net.SoftmaxWithLoss(
         ['cls_score', 'labels_int32'], ['cls_prob', 'loss_cls'],
         scale=model.GetLossScale()
@@ -86,9 +99,17 @@ def add_fast_rcnn_losses(model):
         'loss_bbox',
         scale=model.GetLossScale()
     )
-    loss_gradients = blob_utils.get_loss_gradients(model, [loss_cls, loss_bbox])
+    loss_depth = model.net.SmoothL1Loss(
+        [
+            'depth_pred', 'depth_targets', 'depth_inside_weights',
+            'depth_outside_weights'
+        ],
+        'loss_depth',
+        scale=model.GetLossScale()
+    )
+    loss_gradients = blob_utils.get_loss_gradients(model, [loss_cls, loss_bbox, loss_depth])
     model.Accuracy(['cls_prob', 'labels_int32'], 'accuracy_cls')
-    model.AddLosses(['loss_cls', 'loss_bbox'])
+    model.AddLosses(['loss_cls', 'loss_bbox', 'loss_depth'])
     model.AddMetrics('accuracy_cls')
     return loss_gradients
 

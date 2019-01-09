@@ -138,6 +138,7 @@ class JsonDataset(object):
         entry['has_visible_keypoints'] = False
         # Empty placeholders
         entry['boxes'] = np.empty((0, 4), dtype=np.float32)
+        entry['depths'] = np.empty((0, 1), dtype=np.float32)
         entry['segms'] = []
         entry['gt_classes'] = np.empty((0), dtype=np.int32)
         entry['seg_areas'] = np.empty((0), dtype=np.float32)
@@ -185,11 +186,13 @@ class JsonDataset(object):
             # Require non-zero seg area and more than 1x1 box size
             if obj['area'] > 0 and x2 > x1 and y2 > y1:
                 obj['clean_bbox'] = [x1, y1, x2, y2]
+                obj['clean_depth'] = obj['depth']
                 valid_objs.append(obj)
                 valid_segms.append(obj['segmentation'])
         num_valid_objs = len(valid_objs)
 
         boxes = np.zeros((num_valid_objs, 4), dtype=entry['boxes'].dtype)
+        depths = np.zeros((num_valid_objs, 1), dtype=entry['depths'].dtype)
         gt_classes = np.zeros((num_valid_objs), dtype=entry['gt_classes'].dtype)
         gt_overlaps = np.zeros(
             (num_valid_objs, self.num_classes),
@@ -210,6 +213,7 @@ class JsonDataset(object):
         for ix, obj in enumerate(valid_objs):
             cls = self.json_category_id_to_contiguous_id[obj['category_id']]
             boxes[ix, :] = obj['clean_bbox']
+            depths[ix, :] = obj['clean_depth']
             gt_classes[ix] = cls
             seg_areas[ix] = obj['area']
             is_crowd[ix] = obj['iscrowd']
@@ -225,6 +229,7 @@ class JsonDataset(object):
             else:
                 gt_overlaps[ix, cls] = 1.0
         entry['boxes'] = np.append(entry['boxes'], boxes, axis=0)
+        entry['depths'] = np.append(entry['depths'], depths, axis=0)
         entry['segms'].extend(valid_segms)
         # To match the original implementation:
         # entry['boxes'] = np.append(

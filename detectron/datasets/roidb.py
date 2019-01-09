@@ -66,6 +66,7 @@ def combined_roidb_for_training(dataset_names, proposal_files):
 
     logger.info('Computing bounding-box regression targets...')
     add_bbox_regression_targets(roidb)
+    add_depth_regression_targets(roidb)
     logger.info('done')
 
     _compute_and_log_stats(roidb)
@@ -142,6 +143,12 @@ def add_bbox_regression_targets(roidb):
         entry['bbox_targets'] = compute_bbox_regression_targets(entry)
 
 
+def add_depth_regression_targets(roidb):
+    """Add information needed to train distance regressors."""
+    for entry in roidb:
+        entry['depth_targets'] = compute_depth_targets(entry)
+
+
 def compute_bbox_regression_targets(entry):
     """Compute bounding-box regression targets for an image."""
     # Indices of ground-truth ROIs
@@ -173,6 +180,30 @@ def compute_bbox_regression_targets(entry):
         1 if cfg.MODEL.CLS_AGNOSTIC_BBOX_REG else labels[ex_inds])
     targets[ex_inds, 1:] = box_utils.bbox_transform_inv(
         ex_rois, gt_rois, cfg.MODEL.BBOX_REG_WEIGHTS)
+    return targets
+
+
+def compute_depth_targets(entry):
+    """Compute centroid depth regression targets for an image."""
+    # Indices of ground-truth distances from bbox centroid to camera
+    depths = entry['depths']
+    overlaps = entry['max_overlaps']
+    labels = entry['max_classes']
+    gt_inds = np.where((entry['gt_classes'] > 0) & (entry['is_crowd'] == 0))[0]
+    # Targets has format (class, td=0)
+    targets = np.zeros((depths.shape[0], 2), dtype=np.float32)
+    if len(gt_inds) == 0:
+        # Bail if the image has no ground-truth ROIs
+        return targets
+
+    # Indices of examples for which we try to make predictions
+    ex_inds = np.where(overlaps >= cfg.TRAIN.BBOX_THRESH)[0]
+
+    # Find which gt ROI each ex ROI has max overlap with:
+    # this will be the ex ROI's gt target
+    targets[ex_inds, 0] = (
+        1 if cfg.MODEL.CLS_AGNOSTIC_BBOX_REG else labels[ex_inds])
+    
     return targets
 
 

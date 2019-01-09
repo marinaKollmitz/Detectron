@@ -124,7 +124,7 @@ def _do_segmentation_eval(json_dataset, res_file, output_dir):
 
 
 def evaluate_boxes(
-    json_dataset, all_boxes, output_dir, use_salt=True, cleanup=False
+    json_dataset, all_boxes, all_depths, output_dir, use_salt=True, cleanup=False
 ):
     res_file = os.path.join(
         output_dir, 'bbox_' + json_dataset.name + '_results'
@@ -132,19 +132,16 @@ def evaluate_boxes(
     if use_salt:
         res_file += '_{}'.format(str(uuid.uuid4()))
     res_file += '.json'
-    _write_coco_bbox_results_file(json_dataset, all_boxes, res_file)
-    # Only do evaluation on non-test sets (annotations are undisclosed on test)
-    if json_dataset.name.find('test') == -1:
-        coco_eval = _do_detection_eval(json_dataset, res_file, output_dir)
-    else:
-        coco_eval = None
+    _write_coco_bbox_results_file(json_dataset, all_boxes, all_depths, res_file)
+    coco_eval = _do_detection_eval(json_dataset, res_file, output_dir)
+    
     # Optionally cleanup results json file
     if cleanup:
         os.remove(res_file)
     return coco_eval
 
 
-def _write_coco_bbox_results_file(json_dataset, all_boxes, res_file):
+def _write_coco_bbox_results_file(json_dataset, all_boxes, all_depths, res_file):
     # [{"image_id": 42,
     #   "category_id": 18,
     #   "bbox": [258.15,41.29,348.26,243.78],
@@ -157,23 +154,25 @@ def _write_coco_bbox_results_file(json_dataset, all_boxes, res_file):
             break
         cat_id = json_dataset.category_to_id_map[cls]
         results.extend(_coco_bbox_results_one_category(
-            json_dataset, all_boxes[cls_ind], cat_id))
+            json_dataset, all_boxes[cls_ind], all_depths[cls_ind], cat_id))
     logger.info(
         'Writing bbox results json to: {}'.format(os.path.abspath(res_file)))
     with open(res_file, 'w') as fid:
         json.dump(results, fid)
 
 
-def _coco_bbox_results_one_category(json_dataset, boxes, cat_id):
+def _coco_bbox_results_one_category(json_dataset, boxes, depths, cat_id):
     results = []
     image_ids = json_dataset.COCO.getImgIds()
     image_ids.sort()
     assert len(boxes) == len(image_ids)
     for i, image_id in enumerate(image_ids):
         dets = boxes[i]
+        depth_dets = depths[i]
         if isinstance(dets, list) and len(dets) == 0:
             continue
         dets = dets.astype(np.float)
+        depth_dets = depth_dets.astype(np.float)
         scores = dets[:, -1]
         xywh_dets = box_utils.xyxy_to_xywh(dets[:, 0:4])
         xs = xywh_dets[:, 0]
@@ -184,6 +183,7 @@ def _coco_bbox_results_one_category(json_dataset, boxes, cat_id):
             [{'image_id': image_id,
               'category_id': cat_id,
               'bbox': [xs[k], ys[k], ws[k], hs[k]],
+              'depth': depth_dets[k],
               'score': scores[k]} for k in range(dets.shape[0])])
     return results
 

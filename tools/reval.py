@@ -95,6 +95,7 @@ def do_reval(dataset_name, output_dir, args):
     results = task_evaluation.evaluate_all(
         dataset,
         dets['all_boxes'],
+        dets['all_depths'],
         dets['all_segms'],
         dets['all_keyps'],
         output_dir,

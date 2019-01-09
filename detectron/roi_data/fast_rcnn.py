@@ -55,6 +55,13 @@ def get_fast_rcnn_blob_names(is_training=True):
         # this binary vector sepcifies the subset of active targets
         blob_names += ['bbox_inside_weights']
         blob_names += ['bbox_outside_weights']
+        # depth_targets blob: R depth regression targets with 1
+        # targets per class
+        blob_names += ['depth_targets']
+        # bbox_inside_weights blob: At most 1 target per roi is active
+        # this binary vector sepcifies the subset of active targets
+        blob_names += ['depth_inside_weights']
+        blob_names += ['depth_outside_weights']
     if is_training and cfg.MODEL.MASK_ON:
         # 'mask_rois': RoIs sampled for training the mask prediction branch.
         # Shape is (#masks, 5) in format (batch_idx, x1, y1, x2, y2).
@@ -176,7 +183,18 @@ def _sample_rois(roidb, im_scale, batch_idx):
     bbox_outside_weights = np.array(
         bbox_inside_weights > 0, dtype=bbox_inside_weights.dtype
     )
-
+    
+    depth_targets, depth_inside_weights = _expand_depth_targets(
+        roidb['depth_targets'][keep_inds, :]
+    )
+    
+    depth_outside_weights = np.array(
+        depth_inside_weights > 0, dtype=depth_inside_weights.dtype
+    )
+    
+    #scale with loss weight for depth
+    depth_outside_weights = cfg.MODEL.DEPTH_REG_WEIGHT * depth_outside_weights
+    
     # Scale rois and format as (batch_idx, x1, y1, x2, y2)
     sampled_rois = sampled_boxes * im_scale
     repeated_batch_idx = batch_idx * blob_utils.ones((sampled_rois.shape[0], 1))
@@ -188,7 +206,10 @@ def _sample_rois(roidb, im_scale, batch_idx):
         rois=sampled_rois,
         bbox_targets=bbox_targets,
         bbox_inside_weights=bbox_inside_weights,
-        bbox_outside_weights=bbox_outside_weights
+        bbox_outside_weights=bbox_outside_weights,
+        depth_targets=depth_targets,
+        depth_inside_weights=depth_inside_weights,
+        depth_outside_weights=depth_outside_weights
     )
 
     # Optionally add Mask R-CNN blobs
@@ -234,6 +255,36 @@ def _expand_bbox_targets(bbox_target_data):
         bbox_inside_weights[ind, start:end] = (1.0, 1.0, 1.0, 1.0)
     return bbox_targets, bbox_inside_weights
 
+def _expand_depth_targets(depth_target_data):
+    """depth regression targets are stored in a compact form in the
+    roidb.
+
+    This function expands those targets into the 1-of-K representation used
+    by the network (i.e. only one class has non-zero targets). The loss weights
+    are similarly expanded.
+
+    Returns:
+        depth_target_data (ndarray): N x K blob of regression targets
+        depth_inside_weights (ndarray): N x K blob of loss weights
+    """
+    num_bbox_reg_classes = cfg.MODEL.NUM_CLASSES
+    if cfg.MODEL.CLS_AGNOSTIC_BBOX_REG:
+        num_bbox_reg_classes = 2  # bg and fg
+
+    clss = depth_target_data[:, 0]
+    depth_targets = blob_utils.zeros((clss.size, num_bbox_reg_classes))
+    depth_inside_weights = blob_utils.zeros(depth_targets.shape)
+    inds = np.where(clss > 0)[0]
+
+    for ind in inds:
+        cls = int(clss[ind])
+        start = cls
+        end = start + 1
+        if depth_target_data[ind, 1] > 0:
+            depth_targets[ind, start:end] = depth_target_data[ind, 1:]
+            depth_inside_weights[ind, start:end] = (1.0)
+
+    return depth_targets, depth_inside_weights
 
 def _add_multilevel_rois(blobs):
     """By default training RoIs are added for a single feature map level only.

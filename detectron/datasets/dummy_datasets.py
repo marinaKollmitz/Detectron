@@ -45,3 +45,12 @@ def get_coco_dataset():
     ]
     ds.classes = {i: name for i, name in enumerate(classes)}
     return ds
+
+def get_mobilityaids_dataset():
+    """A dummy COCO dataset that includes only the 'classes' field."""
+    ds = AttrDict()
+    classes = [
+        '__background__', 'person', 'crutches', 'walking_frame', 'wheelchair','push_wheelchair'
+    ]
+    ds.classes = {i: name for i, name in enumerate(classes)}
+    return ds

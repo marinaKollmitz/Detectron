@@ -455,6 +455,11 @@ __C.MODEL.CLS_AGNOSTIC_BBOX_REG = False
 # These are empirically chosen to approximately lead to unit variance targets
 __C.MODEL.BBOX_REG_WEIGHTS = (10., 10., 5., 5.)
 
+# Default weight for centroid depth regression of bboxes. It is empirically 
+# chosen to balance with bbox regression and object classification
+# performance
+__C.MODEL.DEPTH_REG_WEIGHT = 10.
+
 # The meaning of FASTER_RCNN depends on the context (training vs. inference):
 # 1) During training, FASTER_RCNN = True means that end-to-end training will be
 #    used to jointly train the RPN subnetwork and the Fast R-CNN subnetwork

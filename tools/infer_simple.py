@@ -106,7 +106,7 @@ def main(args):
         'Models that require precomputed proposals are not supported'
 
     model = infer_engine.initialize_model_from_cfg(args.weights)
-    dummy_coco_dataset = dummy_datasets.get_coco_dataset()
+    dummy_mobilityaids_dataset = dummy_datasets.get_mobilityaids_dataset()
 
     if os.path.isdir(args.im_or_folder):
         im_list = glob.iglob(args.im_or_folder + '/*.' + args.image_ext)
@@ -122,7 +122,7 @@ def main(args):
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
-            cls_boxes, cls_segms, cls_keyps = infer_engine.im_detect_all(
+            cls_boxes, cls_depths, cls_segms, cls_keyps = infer_engine.im_detect_all(
                 model, im, None, timers=timers
             )
         logger.info('Inference time: {:.3f}s'.format(time.time() - t))
@@ -139,13 +139,16 @@ def main(args):
             im_name,
             args.output_dir,
             cls_boxes,
+            cls_depths,
             cls_segms,
             cls_keyps,
-            dataset=dummy_coco_dataset,
+            dataset=dummy_mobilityaids_dataset,
             box_alpha=0.3,
             show_class=True,
+            show_depth=True,
             thresh=0.7,
-            kp_thresh=2
+            kp_thresh=2,
+            ext='jpg'
         )
 
 

@@ -31,6 +31,7 @@ import logging
 import numpy as np
 import os
 import scipy.sparse
+import yaml
 
 # Must happen before importing COCO API (which imports matplotlib)
 import detectron.utils.env as envu
@@ -61,6 +62,8 @@ class JsonDataset(object):
         self.name = name
         self.image_directory = dataset_catalog.get_im_dir(name)
         self.image_prefix = dataset_catalog.get_im_prefix(name)
+        self.odom_directory = dataset_catalog.get_odom_dir(name)
+        self.camera_calibration = dataset_catalog.get_camera_calibration(name)
         self.COCO = COCO(dataset_catalog.get_ann_fn(name))
         self.debug_timer = Timer()
         # Set up dataset classes
@@ -153,6 +156,19 @@ class JsonDataset(object):
             entry['gt_keypoints'] = np.empty(
                 (0, 3, self.num_keypoints), dtype=np.int32
             )
+        
+        #add odometry info if available
+        if self.odom_directory is not None:
+            file_base = os.path.splitext(entry['file_name'])[0]
+            odom_path = os.path.join(
+                    self.odom_directory, self.image_prefix + file_base + '.yml')
+            odom_yml = yaml.load(open(odom_path, 'r'))
+            entry['odom'] = odom_yml['transform']
+            
+        #add camera calibration if available
+        if self.camera_calibration is not None:
+            entry['camera_calibration'] = self.camera_calibration
+            
         # Remove unwanted fields that come from the json file (if they exist)
         for k in ['date_captured', 'url', 'license', 'file_name']:
             if k in entry:

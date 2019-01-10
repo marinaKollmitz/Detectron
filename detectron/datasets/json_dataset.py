@@ -64,6 +64,7 @@ class JsonDataset(object):
         self.image_prefix = dataset_catalog.get_im_prefix(name)
         self.odom_directory = dataset_catalog.get_odom_dir(name)
         self.camera_calibration = dataset_catalog.get_camera_calibration(name)
+        self.trafo_base_camera = dataset_catalog.get_base_to_cam_trafo(name)
         self.COCO = COCO(dataset_catalog.get_ann_fn(name))
         self.debug_timer = Timer()
         # Set up dataset classes
@@ -165,9 +166,13 @@ class JsonDataset(object):
             odom_yml = yaml.load(open(odom_path, 'r'))
             entry['odom'] = odom_yml['transform']
             
-        #add camera calibration if available
+        #add intrinsic camera calibration if available
         if self.camera_calibration is not None:
             entry['camera_calibration'] = self.camera_calibration
+            
+        #add base to camera transform if available
+        if self.trafo_base_camera is not None:
+            entry['base_cam_trafo'] = self.trafo_base_camera
             
         # Remove unwanted fields that come from the json file (if they exist)
         for k in ['date_captured', 'url', 'license', 'file_name']:

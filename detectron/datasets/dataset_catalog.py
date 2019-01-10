@@ -21,7 +21,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-
+import yaml
 
 # Path to data dir
 _DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -36,6 +36,7 @@ _DEVKIT_DIR = 'devkit_directory'
 _RAW_DIR = 'raw_dir'
 _ODOM_DIR = 'odom_directory'
 _CAM_CAL = 'camera_calibration'
+_BASE2CAM = 'trafo_base_cam'
 
 # Available datasets
 _DATASETS = {
@@ -78,6 +79,8 @@ _DATASETS = {
             _DATA_DIR + '/mobility-aids/odometry_TestSet2',
         _CAM_CAL:
             _DATA_DIR + '/mobility-aids/camera_calibration.txt',
+        _BASE2CAM:
+            _DATA_DIR + '/mobility-aids/trafo_base_to_cam.yml',
     }
 }
 
@@ -109,7 +112,10 @@ def get_im_prefix(name):
     """Retrieve the image prefix for the dataset."""
     return _DATASETS[name][_IM_PREFIX] if _IM_PREFIX in _DATASETS[name] else ''
 
+#the camera calibration could be different for each image. Here, we assume it 
+#stays the same over the dataset
 def get_camera_calibration(name):
+    """Retrieve camera calibration file for the dataset. """
     if _CAM_CAL in _DATASETS[name]:
         
         cam_calib = {}
@@ -119,6 +125,17 @@ def get_camera_calibration(name):
                 if len(splits) == 2:
                     cam_calib[splits[0]] = float(splits[1])
         return cam_calib
+    
+    else:
+        return None
+
+#the transformation could change for each image. Here, we assume it is constant
+def get_base_to_cam_trafo(name):
+    """retrieve (static) transformation between robot frame and camera. """
+    if _BASE2CAM in _DATASETS[name]:
+        trafo_yaml = yaml.load(open(_DATASETS[name][_BASE2CAM]))
+        
+        return trafo_yaml['transform']
     
     else:
         return None

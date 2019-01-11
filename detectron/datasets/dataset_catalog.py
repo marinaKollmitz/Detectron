@@ -121,6 +121,7 @@ def get_camera_calibration(name):
         cam_calib = {}
         with open(_DATASETS[name][_CAM_CAL]) as f:
             for line in f:
+                line = line.replace(" ", "")
                 splits = line.split('=')
                 if len(splits) == 2:
                     cam_calib[splits[0]] = float(splits[1])

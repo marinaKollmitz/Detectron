@@ -81,9 +81,44 @@ _DATASETS = {
             _DATA_DIR + '/mobility-aids/camera_calibration.txt',
         _BASE2CAM:
             _DATA_DIR + '/mobility-aids/trafo_base_to_cam.yml',
+    },
+    'mobilityaids_RGB_test2_seq2': {
+        _IM_DIR:
+            _DATA_DIR + '/mobility-aids/Images_RGB',
+        _ANN_FN:
+            _DATA_DIR + '/mobility-aids/annotations/test2_RGB_seq2.json',
+        _ODOM_DIR:
+            _DATA_DIR + '/mobility-aids/odometry_TestSet2',
+        _CAM_CAL:
+            _DATA_DIR + '/mobility-aids/camera_calibration.txt',
+        _BASE2CAM:
+            _DATA_DIR + '/mobility-aids/trafo_base_to_cam.yml',
+    },
+    'mobilityaids_RGB_test2_seq3': {
+        _IM_DIR:
+            _DATA_DIR + '/mobility-aids/Images_RGB',
+        _ANN_FN:
+            _DATA_DIR + '/mobility-aids/annotations/test2_RGB_seq3.json',
+        _ODOM_DIR:
+            _DATA_DIR + '/mobility-aids/odometry_TestSet2',
+        _CAM_CAL:
+            _DATA_DIR + '/mobility-aids/camera_calibration.txt',
+        _BASE2CAM:
+            _DATA_DIR + '/mobility-aids/trafo_base_to_cam.yml',
+    },
+    'mobilityaids_RGB_test2_seq4': {
+        _IM_DIR:
+            _DATA_DIR + '/mobility-aids/Images_RGB',
+        _ANN_FN:
+            _DATA_DIR + '/mobility-aids/annotations/test2_RGB_seq4.json',
+        _ODOM_DIR:
+            _DATA_DIR + '/mobility-aids/odometry_TestSet2',
+        _CAM_CAL:
+            _DATA_DIR + '/mobility-aids/camera_calibration.txt',
+        _BASE2CAM:
+            _DATA_DIR + '/mobility-aids/trafo_base_to_cam.yml',
     }
 }
-
 
 def datasets():
     """Retrieve the list of available dataset names."""

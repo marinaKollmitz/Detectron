@@ -45,10 +45,14 @@ TRAIN:
   SNAPSHOT_ITERS: 5000
 TEST:
   FORCE_JSON_DATASET_EVAL: True
-  DATASETS: ('mobilityaids_RGB_test',)
+  DATASETS: ('mobilityaids_RGB_test',
+             'mobilityaids_RGB_test2_seq1',
+             'mobilityaids_RGB_test2_seq2',
+             'mobilityaids_RGB_test2_seq3',
+             'mobilityaids_RGB_test2_seq4')
   SCALE: 540
   MAX_SIZE: 960
   NMS: 0.5
   RPN_PRE_NMS_TOP_N: 1000  # Per FPN level
   RPN_POST_NMS_TOP_N: 1000
-OUTPUT_DIR: ../trained_models/VGG-M-RGB/
+OUTPUT_DIR: mobilityaids_models/VGG-M/

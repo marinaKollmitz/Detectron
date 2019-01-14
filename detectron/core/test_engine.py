@@ -151,17 +151,17 @@ def test_net_on_dataset(
     test_timer.tic()
     if multi_gpu:
         num_images = len(dataset.get_roidb())
-        all_boxes, all_segms, all_keyps = multi_gpu_test_net_on_dataset(
+        all_boxes, all_depths, all_segms, all_keyps = multi_gpu_test_net_on_dataset(
             weights_file, dataset_name, proposal_file, num_images, output_dir
         )
     else:
-        all_boxes, all_segms, all_keyps = test_net(
+        all_boxes, all_depths, all_segms, all_keyps = test_net(
             weights_file, dataset_name, proposal_file, output_dir, gpu_id=gpu_id
         )
     test_timer.toc()
     logger.info('Total inference time: {:.3f}s'.format(test_timer.average_time))
     results = task_evaluation.evaluate_all(
-        dataset, all_boxes, all_segms, all_keyps, output_dir
+        dataset, all_boxes, all_depths, all_segms, all_keyps, output_dir
     )
     return results
 
@@ -235,7 +235,7 @@ def test_net(
     model = initialize_model_from_cfg(weights_file, gpu_id=gpu_id)
     num_images = len(roidb)
     num_classes = cfg.MODEL.NUM_CLASSES
-    all_boxes, all_segms, all_keyps = empty_results(num_classes, num_images)
+    all_boxes, all_depths, all_segms, all_keyps = empty_results(num_classes, num_images)
     timers = defaultdict(Timer)
     for i, entry in enumerate(roidb):
         if cfg.TEST.PRECOMPUTED_PROPOSALS:
@@ -254,11 +254,12 @@ def test_net(
 
         im = cv2.imread(entry['image'])
         with c2_utils.NamedCudaScope(gpu_id):
-            cls_boxes_i, cls_segms_i, cls_keyps_i = im_detect_all(
+            cls_boxes_i, cls_depths_i, cls_segms_i, cls_keyps_i = im_detect_all(
                 model, im, box_proposals, timers
             )
 
         extend_results(i, all_boxes, cls_boxes_i)
+        extend_results(i, all_depths, cls_depths_i)
         if cls_segms_i is not None:
             extend_results(i, all_segms, cls_segms_i)
         if cls_keyps_i is not None:
@@ -312,13 +313,14 @@ def test_net(
     save_object(
         dict(
             all_boxes=all_boxes,
+            all_depths=all_depths,
             all_segms=all_segms,
             all_keyps=all_keyps,
             cfg=cfg_yaml
         ), det_file
     )
     logger.info('Wrote detections to: {}'.format(os.path.abspath(det_file)))
-    return all_boxes, all_segms, all_keyps
+    return all_boxes, all_depths, all_segms, all_keyps
 
 
 def initialize_model_from_cfg(weights_file, gpu_id=0):
@@ -381,10 +383,11 @@ def empty_results(num_classes, num_images):
     """
     # Note: do not be tempted to use [[] * N], which gives N references to the
     # *same* empty list.
-    all_boxes = [[[] for _ in range(num_images)] for _ in range(num_classes)]
-    all_segms = [[[] for _ in range(num_images)] for _ in range(num_classes)]
-    all_keyps = [[[] for _ in range(num_images)] for _ in range(num_classes)]
-    return all_boxes, all_segms, all_keyps
+    all_boxes  = [[[] for _ in range(num_images)] for _ in range(num_classes)]
+    all_depths = [[[] for _ in range(num_images)] for _ in range(num_classes)]
+    all_segms  = [[[] for _ in range(num_images)] for _ in range(num_classes)]
+    all_keyps  = [[[] for _ in range(num_images)] for _ in range(num_classes)]
+    return all_boxes, all_depths, all_segms, all_keyps
 
 
 def extend_results(index, all_res, im_res):

@@ -1,0 +1,12 @@
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Images_RGB.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Images_Depth.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Images_DepthJet.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_RGB.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_RGB_TestSet2.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_DepthJet.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_DepthJet_TestSet2.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/odometry_TestSet2.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/ImageSets.zip
+http://mobility-aids.informatik.uni-freiburg.de/dataset/camera_calibration.txt
+http://mobility-aids.informatik.uni-freiburg.de/dataset/trafo_base_to_cam.yml
+http://mobility-aids.informatik.uni-freiburg.de/dataset/README.txt

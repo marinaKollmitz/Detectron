@@ -2,7 +2,7 @@ import json
 import numpy as np
 from multiclass_tracking.tracker import Tracker
 from multiclass_tracking.viz import Visualizer
-from image_projection import ImageProjection
+from multiclass_tracking.image_projection import ImageProjection
 import tf
 from detectron.datasets.json_dataset import JsonDataset
 
@@ -178,6 +178,7 @@ def do_kalman_filtering(im_detections, dataset, time_delta, ekf_sensor_noise,
         if viz:
             visualizer.visualize_detections(roidb[timestep]['image'], 
                                             trafo_cam_in_odom, 
+                                            trafo_cam_in_robot,
                                             cam_calib,
                                             detections_timestep, 
                                             tracker.tracks, 

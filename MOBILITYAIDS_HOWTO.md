@@ -17,9 +17,15 @@ Download the dataset into a `$DATASETS_DIR` of your choice
 cd $DATASETS_FOLDER
 mkdir mobility-aids && cd mobility-aids
 # download zipped dataset files
-wget -i $DETECTRON_ROOT/detectron/datasets/data/download_mobility_aids.txt
+wget -i $DETECTRON_ROOT/detectron/datasets/mobility_aids/download_mobility_aids.txt
 # unzip files
 unzip \*.zip
 # create link
 ln -sv $DATASETS_DIR/mobility-aids/ $DETECTRON_ROOT/detectron/datasets/data/
+```
+
+Now generate coco-format labels for the mobilityaids dataset
+
+```
+python2 $DETECTRON_ROOT/detectron/datasets/mobility_aids/generate_mobilityaids_coco_labels.py
 ```

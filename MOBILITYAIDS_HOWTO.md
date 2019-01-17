@@ -36,7 +36,7 @@ Download and unpack the trained mobilityaids models we used in our RAS publicati
 
 ```
 cd $DETECTRON_ROOT
-wget http://mobility-aids.informatik.uni-freiburg.de/dataset/mobilityaids_models.zip
+wget http://mobility-aids.informatik.uni-freiburg.de/mobilityaids_models.zip
 unzip mobilityaids_models.zip
 ```
 

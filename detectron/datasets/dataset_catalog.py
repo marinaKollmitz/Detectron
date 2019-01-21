@@ -48,7 +48,7 @@ _DATASETS = {
         _ANN_FN:
             _DATA_DIR + '/mobility-aids/annotations/train_RGB.json',
     },
-    'mobilityaids_Depthjet_train': {
+    'mobilityaids_DepthJet_train': {
         _IM_DIR:
             _DATA_DIR + '/mobility-aids/Images_DepthJet',
         _ANN_FN:
@@ -62,7 +62,7 @@ _DATASETS = {
         _ANN_FN:
             _DATA_DIR + '/mobility-aids/annotations/test_RGB.json',
     },
-    'mobilityaids_Depthjet_test': {
+    'mobilityaids_DepthJet_test': {
         _IM_DIR:
             _DATA_DIR + '/mobility-aids/Images_DepthJet',
         _ANN_FN:

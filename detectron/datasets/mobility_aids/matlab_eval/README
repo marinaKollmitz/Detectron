@@ -1,0 +1,8 @@
+author: Marina Kollmitz
+
+This evaluation code is adapted from the VOCdevkit 2010 evaluation code. It is designed to process multiclass detections with centroid depth estimation for each detection. In addition to image AP, it provides mAPs at different detection distance thresholds and depth regression errors. The script further saves various evaluation files into the output directory. 
+
+Usage: 
+
+- called from within the DetectronDistance framework if the dataset name contains 'mobilityaids' or if the cfg parameter TEST.FORCE_MOBILITYAIDS_EVAL is set to true
+- call eval_mobilityaids.m with the appropriate inputs

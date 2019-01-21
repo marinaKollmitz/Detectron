@@ -46,6 +46,7 @@ import detectron.datasets.cityscapes_json_dataset_evaluator \
     as cs_json_dataset_evaluator
 import detectron.datasets.json_dataset_evaluator as json_dataset_evaluator
 import detectron.datasets.voc_dataset_evaluator as voc_dataset_evaluator
+import detectron.datasets.mobilityaids_dataset_evaluator as mobilityaids_dataset_evaluator
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +94,10 @@ def evaluate_boxes(dataset, all_boxes, all_depths, output_dir, use_matlab=False)
             dataset, all_boxes, output_dir, use_matlab=use_matlab
         )
         box_results = _voc_eval_to_box_results(voc_eval)
+    elif _use_mobilityaids_evaluator(dataset):
+        mobilityaids_eval = mobilityaids_dataset_evaluator.evaluate_boxes(
+                dataset, all_boxes, all_depths, output_dir)
+        box_results = _mobilityaids_eval_to_box_results(mobilityaids_eval)
     else:
         raise NotImplementedError(
             'No evaluator for dataset: {}'.format(dataset.name)
@@ -257,6 +262,9 @@ def _use_voc_evaluator(dataset):
     """Check if the dataset uses the PASCAL VOC dataset evaluator."""
     return dataset.name[:4] == 'voc_'
 
+def _use_mobilityaids_evaluator(dataset):
+    """Check if the dataset uses the general mobilityaids dataset evaluator."""
+    return dataset.name.find('mobilityaids') > -1 or cfg.TEST.FORCE_MOBILITYAIDS_EVAL
 
 # Indices in the stats array for COCO boxes and masks
 COCO_AP = 0
@@ -316,11 +324,13 @@ def _voc_eval_to_box_results(voc_eval):
     # Not supported (return empty results)
     return _empty_box_results()
 
+def _mobilityaids_eval_to_box_results(mobilityaids_eval):
+    # Not supported (return empty results)
+    return _empty_box_results()
 
 def _cs_eval_to_mask_results(cs_eval):
     # Not supported (return empty results)
     return _empty_mask_results()
-
 
 def _empty_box_results():
     return OrderedDict({

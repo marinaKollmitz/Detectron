@@ -277,6 +277,10 @@ __C.TEST.COMPETITION_MODE = True
 # COCO API to get COCO style AP on PASCAL VOC)
 __C.TEST.FORCE_JSON_DATASET_EVAL = False
 
+# Evaluate detections with the mobilityaids dataset eval code even if it's not
+# the evaluation code for the dataset
+__C.TEST.FORCE_MOBILITYAIDS_EVAL = False
+
 # [Inferred value; do not set directly in a config]
 # Indicates if precomputed proposals are used at test time
 # Not set for 1-stage models and 2-stage models with RPN subnetwork enabled

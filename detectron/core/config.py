@@ -432,6 +432,22 @@ __C.TEST.BBOX_VOTE.SCORING_METHOD_BETA = 1.0
 
 
 # ---------------------------------------------------------------------------- #
+# Tracking options
+# ---------------------------------------------------------------------------- #
+__C.TRACK = AttrDict()
+
+# Datasets to perform tracking on
+# Available dataset list: detectron.datasets.dataset_catalog.datasets()
+# If multiple datasets are listed, tracking is performed on each one 
+# sequentially, but they are evaluated together
+__C.TRACK.DATASETS = ()
+
+# Dataset on which to finetune the tracking parameters
+# Available dataset list: detectron.datasets.dataset_catalog.datasets()
+__C.TRACK.VALIDATION_DATASET = b''
+
+
+# ---------------------------------------------------------------------------- #
 # Model options
 # ---------------------------------------------------------------------------- #
 __C.MODEL = AttrDict()

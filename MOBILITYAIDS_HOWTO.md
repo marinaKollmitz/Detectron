@@ -42,6 +42,8 @@ unzip mobilityaids_models.zip
 
 ## Testing
 
+# Test Detection
+
 To test the detection performance of our models on the mobilityaids dataset, use the `tools/test_net.py` script for the model you want to test. For example, to test the VGG-M RGB model on the mobilityaids test set, run 
 ```
 cd $DETECTRON_ROOT 
@@ -54,3 +56,11 @@ cd $DETECTRON_ROOT
 python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl TEST.FORCE_JSON_DATASET_EVAL True
 ```
 but it will not produce the same results (because it uses interpolated AP) and also generate no files.
+
+# Test Tracking
+
+To test the performance of our probabilistic position, velocity and class estimation module, use the `tools/test_tracking.py` script for the model you want to test. For example, to test the tracking performance for the VGG-M RGB model on the mobilityaids tracking datasets, run
+```
+cd $DETECTRON_ROOT 
+python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
+```

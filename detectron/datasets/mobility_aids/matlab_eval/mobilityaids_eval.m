@@ -1,16 +1,20 @@
-function mobilityaids_eval(json_labels_file, res_file, output_dir, tracking)
+function mobilityaids_eval(json_labels_files, res_files, output_dir, tracking)
 
-write_results = false;
+% write_results = false;
+% 
+% %if tracking is not specified, set it to false. In this case, write
+% %results to file
+% if nargin<4
+%    tracking = false;
+%    write_results = true;
+% end
 
-%if tracking is not specified, set it to false. In this case, write
-%results to file
-if nargin<4
-   tracking = false;
-   write_results = true;
-end
+write_results = true;
 
-labels = get_json_labels(json_labels_file);
-detections = read_detections(res_file);
+labels = get_json_labels(json_labels_files);
+detections = read_detections(res_files);
+
+[labels, detections] = reorganise_ids(labels, detections);
 
 classes = cell(1,length(labels.categories));
 for i=1:length(labels.categories)
@@ -66,18 +70,39 @@ if tracking
     %Print precision and recall performance
     fprintf("\ndetection results\n\n");
     %output precision recall evaluation
-    fprintf("%18s %12s %12s %12s %12s %12s %12s\n" , "class", "im_prec", "im_rec", "p@0.25m", "rec@0.25m", "p@0.5m", "rec@0.5m");
+    fprintf("%18s %12s %12s %12s %12s\n" , "class", "im_prec", "im_rec", "p@0.5m", "rec@0.5m");
 
     for cl_i=1:length(classes)
         cla = classes{cl_i};
-        fprintf("%18s %12.5f %12.5f %12.5f %12.5f %12.5f %12.5f\n", cla, aps(cl_i), recs(cl_i), depth_aps(dist_thresholds==0.25,cl_i), depth_recs(dist_thresholds==0.25,cl_i), depth_aps(dist_thresholds==0.5,cl_i), depth_recs(dist_thresholds==0.5,cl_i));
+        fprintf("%18s %12.5f %12.5f %12.5f %12.5f\n", cla, aps(cl_i), recs(cl_i), depth_aps(dist_thresholds==0.5,cl_i), depth_recs(dist_thresholds==0.5,cl_i));
     end
 
     fprintf("%18s\n", "----");
     depth_maps = mean(depth_aps,2);
-    depth_recs = mean(depth_recs,2);
-    fprintf("%18s %12.5f %12.5f %12.5f %12.5f %12.5f %12.5f\n", "mAP", mean(aps), mean(recs), depth_maps(dist_thresholds==0.25), depth_recs(dist_thresholds==0.25), depth_maps(dist_thresholds==0.5), depth_recs(dist_thresholds==0.5)); 
+    depth_mrecs = mean(depth_recs,2);
+    fprintf("%18s %12.5f %12.5f %12.5f %12.5f\n", "mAP", mean(aps), mean(recs), depth_maps(dist_thresholds==0.5), depth_mrecs(dist_thresholds==0.5)); 
 
+    if write_results
+        %output precision recall evaluation
+        file = fopen(fullfile(output_dir, 'precision-recall.txt'), 'w');
+        fprintf(file, "%18s %12s %12s %12s %12s\n" , "class", "im_prec", "im_rec", "p@0.5m", "rec@0.5m");
+
+        for cl_i=1:length(classes)
+            cla = classes{cl_i};
+            fprintf(file, "%18s %12.5f %12.5f %12.5f %12.5f\n", cla, aps(cl_i), recs(cl_i), depth_aps(dist_thresholds==0.5,cl_i), depth_recs(dist_thresholds==0.5,cl_i));
+        end
+        
+        fprintf(file, "%18s\n", "----");
+        
+        depth_maps = mean(depth_aps,2);
+        depth_mrecs = mean(depth_recs,2);
+        fprintf(file, "%18s %12.5f %12.5f %12.5f %12.5f\n", "mAP", mean(aps), mean(recs), depth_maps(dist_thresholds==0.5), depth_mrecs(dist_thresholds==0.5)); 
+        
+        fprintf(file, "\n mean depth error: %.5f m\n", mean(all_depth_errors(all_depth_errors>0)));
+            
+        fclose(file);
+    end
+    
 else
     %threshold detections
     thresh_dets = threshold_detections(detections, thresholds);

@@ -42,7 +42,7 @@ unzip mobilityaids_models.zip
 
 ## Testing
 
-# Test Detection
+### Test Detection
 
 To test the detection performance of our models on the mobilityaids dataset, use the `tools/test_net.py` script for the model you want to test. For example, to test the VGG-M RGB model on the mobilityaids test set, run 
 ```
@@ -57,10 +57,25 @@ python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.
 ```
 but it will not produce the same results (because it uses interpolated AP) and also generate no files.
 
-# Test Tracking
+### Test Tracking
 
+For tracking you first need the [multiclass-people-tracking](https://github.com/marinaKollmitz/multiclass-people-tracking) code. Clone it into a directory of your choice which we will refer to as `$TRACKING_ROOT`:
+```
+cd $TRACKING_ROOT
+git clone https://github.com/marinaKollmitz/multiclass-people-tracking
+```
+To make sure python can find the tracking code you can add it to your `$PYTHONPATH` by adding the following to your `.bashrc`:
+```
+export PYTHONPATH=$PYTHONPATH:$TRACKING_ROOT/multiclass-people-tracking/
+```
 To test the performance of our probabilistic position, velocity and class estimation module, use the `tools/test_tracking.py` script for the model you want to test. For example, to test the tracking performance for the VGG-M RGB model on the mobilityaids tracking datasets, run
 ```
 cd $DETECTRON_ROOT 
 python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
 ```
+To produce the tracking metrics you need matlab. If you just want to look at the tracking in action, you can run
+```
+cd $DETECTRON_ROOT 
+python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml --visualize TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
+```
+to see the detections before and after filtering. Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule.

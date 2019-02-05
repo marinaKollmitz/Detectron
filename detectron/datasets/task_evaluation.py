@@ -168,6 +168,11 @@ def evaluate_box_proposals(dataset, roidb):
     return OrderedDict([(dataset.name, res)])
 
 
+def evaluate_tracking(res_files, json_datasets, output_dir, use_matlab=True):
+    mobilityaids_dataset_evaluator.evaluate_tracking(
+            res_files, json_datasets, output_dir, use_matlab = use_matlab)
+
+
 def log_box_proposal_results(results):
     """Log bounding box proposal results."""
     for dataset in results.keys():

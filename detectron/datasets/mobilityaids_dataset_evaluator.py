@@ -49,7 +49,7 @@ def evaluate_boxes(
     _write_coco_bbox_results_file(json_dataset, all_boxes, all_depths, res_file)
     
     if use_matlab:
-        _do_matlab_eval(json_dataset, res_file, output_dir)
+        _do_matlab_box_eval(json_dataset, res_file, output_dir)
     else:
         logger.warn("no python evaluator available for the mobilityaids dataset.")
     if cleanup:
@@ -58,7 +58,19 @@ def evaluate_boxes(
     #TODO return evaluated APs for mobilityaids
     return None
 
-def _do_matlab_eval(json_dataset, res_file, output_dir):
+def evaluate_tracking(
+    res_files,
+    json_datasets,
+    output_dir,
+    use_matlab=True):
+    
+    if use_matlab:
+        _do_matlab_tracking_eval(json_datasets, res_files, output_dir)
+    else:
+        logger.warn("no python evaluator available for the mobilityaids dataset.")
+    
+
+def _do_matlab_box_eval(json_dataset, res_file, output_dir):
     import subprocess
     
     json_file = get_ann_fn(json_dataset.name)
@@ -74,5 +86,28 @@ def _do_matlab_eval(json_dataset, res_file, output_dir):
     cmd += '-r "dbstop if error; '
     cmd += 'mobilityaids_eval(\'{:s}\',\'{:s}\',\'{:s}\'); quit;"' \
        .format(json_file, res_file, output_dir)
+    logger.info('Running:\n{}'.format(cmd))
+    subprocess.call(cmd, shell=True)
+    
+def _do_matlab_tracking_eval(json_datasets, res_files, output_dir):
+    import subprocess
+    
+    json_files = [get_ann_fn(json_dataset.name) for json_dataset in json_datasets]
+    
+    #TODO possible to format this easier?
+    json_files_string = ('[\\"' + '\\",\\"'.join(json_files) + '\\"]')
+    res_files_string = ('[\\"' + '\\",\\"'.join(res_files) + '\\"]')
+    
+    logger.info('------------------------------------------------------------------')
+    logger.info('Computing tracking results with the mobilityaids MATLAB eval code.')
+    logger.info('------------------------------------------------------------------')
+    
+    path = os.path.join(
+        cfg.ROOT_DIR, 'detectron', 'datasets', 'mobility_aids', 'matlab_eval')
+    cmd = 'cd {} && '.format(path)
+    cmd += '{:s} -nodisplay -nodesktop '.format(cfg.MATLAB)
+    cmd += '-r "dbstop if error; '
+    cmd += 'mobilityaids_eval({:s},{:s},\'{:s}\',true); quit;"' \
+       .format(json_files_string, res_files_string, output_dir)
     logger.info('Running:\n{}'.format(cmd))
     subprocess.call(cmd, shell=True)

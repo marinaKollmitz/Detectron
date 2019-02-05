@@ -75,6 +75,10 @@ def _do_matlab_box_eval(json_dataset, res_file, output_dir):
     
     json_file = get_ann_fn(json_dataset.name)
     
+    #TODO possible to format this easier?
+    json_files_string = ('[\\"' + '\\",\\"'.join([json_file]) + '\\"]')
+    res_files_string = ('[\\"' + '\\",\\"'.join([res_file]) + '\\"]')
+    
     logger.info('---------------------------------------------------------')
     logger.info('Computing results with the mobilityaids MATLAB eval code.')
     logger.info('---------------------------------------------------------')
@@ -84,8 +88,8 @@ def _do_matlab_box_eval(json_dataset, res_file, output_dir):
     cmd = 'cd {} && '.format(path)
     cmd += '{:s} -nodisplay -nodesktop '.format(cfg.MATLAB)
     cmd += '-r "dbstop if error; '
-    cmd += 'mobilityaids_eval(\'{:s}\',\'{:s}\',\'{:s}\'); quit;"' \
-       .format(json_file, res_file, output_dir)
+    cmd += 'mobilityaids_eval({:s},{:s},\'{:s}\'); quit;"' \
+       .format(json_files_string, res_files_string, output_dir)
     logger.info('Running:\n{}'.format(cmd))
     subprocess.call(cmd, shell=True)
     

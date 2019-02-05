@@ -1,13 +1,9 @@
 function mobilityaids_eval(json_labels_files, res_files, output_dir, tracking)
 
-% write_results = false;
-% 
-% %if tracking is not specified, set it to false. In this case, write
-% %results to file
-% if nargin<4
-%    tracking = false;
-%    write_results = true;
-% end
+%if tracking is not specified, set it to false
+if nargin<4
+   tracking = false;
+end
 
 write_results = true;
 

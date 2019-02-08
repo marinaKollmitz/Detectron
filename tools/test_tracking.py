@@ -38,6 +38,12 @@ def parse_args():
         action='store_true'
     )
     parser.add_argument(
+        '--no-filtering',
+        dest='no_filtering',
+        help='(optional) evaluate detections without filtering',
+        action='store_true'
+    )
+    parser.add_argument(
         '--visualize',
         dest='viz',
         help='(optional) visualize tracking with matplotlib',
@@ -98,5 +104,6 @@ if __name__ == '__main__':
         cfg.TEST.WEIGHTS,
         args.timestep,
         use_hmm=use_hmm,
+        no_filtering=args.no_filtering,
         visualize=args.viz,
         step=args.step)

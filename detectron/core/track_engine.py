@@ -7,6 +7,7 @@ from detectron.datasets.task_evaluation import evaluate_tracking
 from detectron.datasets.json_dataset_evaluator import _write_coco_bbox_results_file
 from detectron.core.test_engine import test_net, test_net_on_dataset
 from detectron.core.config import get_output_dir
+import detectron.utils.boxes as box_utils
 
 import os
 import tf
@@ -35,9 +36,9 @@ def get_detections(weights_file, dataset, class_thresh):
         
         _write_coco_bbox_results_file(dataset, all_boxes, all_depths, res_file)
         
-    detections = load_detections(res_file, dataset, class_thresh)
+    detections, thresh_det_file = load_detections(res_file, dataset, class_thresh)
     
-    return detections
+    return detections, thresh_det_file
 
 def load_detections(detection_file, dataset, thresholds):
     
@@ -45,18 +46,29 @@ def load_detections(detection_file, dataset, thresholds):
     roidb = dataset.get_roidb()
     classes = dataset.classes
     
+    #apply class thresholds
+    thres_dets = [det for det in detections if det['score'] > thresholds[classes[det['category_id']]]]
+    
+    #save thresholded detections to file
+    output_dir = os.path.abspath(get_output_dir(dataset.name, training=False))
+    
+    res_file = os.path.join(
+        output_dir, 'bbox_' + dataset.name + '_results_thresh.json'
+    )
+    
+    with open(res_file,'w') as out_file:
+        json.dump(thres_dets, out_file)
+    
+    #get per-image detections
     detections_per_image = []
 
     for entry in roidb:
         #get all detections for image
-        im_dets = [det for det in detections if det['image_id'] == entry['id']]
+        im_dets = [det for det in thres_dets if det['image_id'] == entry['id']]
         
-        #apply threshold
-        im_dets_thresh = [det for det in im_dets if det['score'] > thresholds[classes[det['category_id']]]]
-        
-        detections_per_image.append(im_dets_thresh)
+        detections_per_image.append(im_dets)
     
-    return detections_per_image
+    return detections_per_image, res_file
 
 def load_class_thresholds(thresholds_file, dataset):
     
@@ -148,7 +160,7 @@ def do_kalman_filtering(im_detections, dataset, time_delta, ekf_sensor_noise,
             
             if im_x > 0 and im_x < 960:
                 
-                bbox_xyxy = [im_bbox[0], im_bbox[1], im_bbox[0]+im_bbox[2], im_bbox[1]+im_bbox[3]]
+                bbox_xyxy = box_utils.xywh_to_xyxy(im_bbox)
                 
                 #append filtered detection
                 filtered_boxes[cla][timestep] = np.append(filtered_boxes[cla][timestep], 
@@ -220,7 +232,8 @@ def validate_tracking_params(weights_file,
     return cla_thresh, observation_model, ekf_sensor_noise
 
 def run_tracking(validation_dataset, tracking_datasets, weights_file, timestep,
-                 use_hmm=True, visualize=False, step=False):
+                 use_hmm=True, no_filtering=False, visualize=False, step=False):
+    
     validation_set_json = JsonDataset(validation_dataset)
     class_thresh, obs_model, meas_cov  = validate_tracking_params(weights_file, 
                                                                   validation_set_json)
@@ -233,17 +246,23 @@ def run_tracking(validation_dataset, tracking_datasets, weights_file, timestep,
         tracking_set_name = tracking_datasets[i]
         tracking_set_json = JsonDataset(tracking_set_name)
         
-        detections = get_detections(weights_file,
-                                    tracking_set_json,
-                                    class_thresh)
+        detections, res_file = get_detections(weights_file,
+                                              tracking_set_json,
+                                              class_thresh)
         
-        filtered_boxes, filtered_depths = do_kalman_filtering(detections, 
-                    tracking_set_json, timestep, meas_cov, obs_model, 
-                    use_hmm=use_hmm, viz=visualize, step=step)
+        if not no_filtering:
+            filtered_boxes, filtered_depths = do_kalman_filtering(detections, 
+                                                                  tracking_set_json, 
+                                                                  timestep, 
+                                                                  meas_cov, 
+                                                                  obs_model, 
+                                                                  use_hmm=use_hmm, 
+                                                                  viz=visualize, 
+                                                                  step=step)
         
-        res_file = write_filtered_detections(tracking_set_json, 
-                                             filtered_boxes, filtered_depths, 
-                                             use_hmm)
+            res_file = write_filtered_detections(tracking_set_json, 
+                                                 filtered_boxes, filtered_depths, 
+                                                 use_hmm)
         
         res_files.append(res_file)
         json_datasets.append(tracking_set_json)

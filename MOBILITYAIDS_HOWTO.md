@@ -73,9 +73,4 @@ To test the performance of our probabilistic position, velocity and class estima
 cd $DETECTRON_ROOT 
 python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
 ```
-To produce the tracking metrics you need matlab. If you just want to look at the tracking in action, you can run
-```
-cd $DETECTRON_ROOT 
-python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml --visualize TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
-```
-to see the detections before and after filtering. Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule.
+To produce the tracking metrics you need matlab. If you just want to look at the tracking in action, you can use the `--visualize` option to visualize the detections before and after filtering. Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule and the `--no-filtering` option if you just want to evaluate precision and recall for the thresholded detections, without filtering.

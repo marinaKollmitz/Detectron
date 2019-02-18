@@ -66,6 +66,10 @@ def load_detections(detection_file, dataset, thresholds):
         #get all detections for image
         im_dets = [det for det in thres_dets if det['image_id'] == entry['id']]
         
+        #convert bbox from xywh to xyxy format
+        for det in im_dets:
+            det["bbox"] = box_utils.xywh_to_xyxy(det["bbox"])
+        
         detections_per_image.append(im_dets)
     
     return detections_per_image, res_file
@@ -114,15 +118,16 @@ def do_kalman_filtering(im_detections, dataset, time_delta, ekf_sensor_noise,
     
     #get information from the datasets
     cam_calib = roidb[0]['camera_calibration']
-    
     trafo_cam_in_robot = get_transform_matrix(roidb[0]['base_cam_trafo'])
     
     #initialize tracker
-    tracker = Tracker(cam_calib, ekf_sensor_noise, hmm_observation_model, use_hmm)
+    tracker = Tracker(ekf_sensor_noise, hmm_observation_model, use_hmm)
     
     #visualization module
     if viz:
         visualizer = Visualizer(num_classes)
+    
+    logger.info("performing EKF filtering for dataset %s ..." % dataset.name)
     
     for timestep in range(num_images):
         
@@ -138,35 +143,25 @@ def do_kalman_filtering(im_detections, dataset, time_delta, ekf_sensor_noise,
         tracker.predict(time_delta)
         
         #tracker update step
-        tracker.update(detections_timestep, trafo_odom_in_cam)
+        tracker.update(detections_timestep, trafo_odom_in_cam, cam_calib)
+        
+        filtered_dets = tracker.get_track_detections(trafo_odom_in_cam)
         
         #save tracking detection
-        for track in tracker.tracks:
-            cla = track.get_class()
-                
-            odom_det = {}
-            odom_det["x"] = track.mu[0,0]
-            odom_det["y"] = track.mu[1,0]
-            odom_det["z"] = track.mu[2,0]
+        for filtered_det in filtered_dets:
             
-            bbox_width = track.bbox[2]
-            bbox_height = track.bbox[3]
-            
-            cam_det = ImageProjection.transform_detection(odom_det, trafo_odom_in_cam)
-            im_bbox = ImageProjection.get_image_bbox(cam_det, cam_calib, bbox_width, bbox_height)
+            cla = filtered_det["category_id"]#track.get_class()
+            im_bbox = filtered_det["bbox"]
+            im_x = (im_bbox[0] + im_bbox[2])/2
             
             #check if bbox center is inside the image
-            im_x = im_bbox[0] + im_bbox[2]/2
-            
             if im_x > 0 and im_x < 960:
-                
-                bbox_xyxy = box_utils.xywh_to_xyxy(im_bbox)
                 
                 #append filtered detection
                 filtered_boxes[cla][timestep] = np.append(filtered_boxes[cla][timestep], 
-                              [np.append(bbox_xyxy, track.get_score())], axis=0)
+                              [np.append(im_bbox, filtered_det["score"])], axis=0)
                 filtered_depths[cla][timestep] = np.append(filtered_depths[cla][timestep], 
-                               cam_det["z"])
+                               filtered_det["depth"])
         
         if viz:
             visualizer.visualize_detections(roidb[timestep]['image'], 
@@ -204,7 +199,9 @@ def write_filtered_detections(dataset, filtered_boxes, filtered_depths, use_hmm)
 # cfg.FORCE_MOBILITYAIDS_EVAL to true. the mobilityaids_dataset_evaluator
 # requires matlab.
 def validate_tracking_params(weights_file,
-                             dataset):
+                             dataset_name):
+    
+    dataset = JsonDataset(dataset_name)
     
     output_dir = os.path.abspath(get_output_dir(dataset.name, training=False))
     
@@ -234,9 +231,8 @@ def validate_tracking_params(weights_file,
 def run_tracking(validation_dataset, tracking_datasets, weights_file, timestep,
                  use_hmm=True, no_filtering=False, visualize=False, step=False):
     
-    validation_set_json = JsonDataset(validation_dataset)
     class_thresh, obs_model, meas_cov  = validate_tracking_params(weights_file, 
-                                                                  validation_set_json)
+                                                                  validation_dataset)
     
     res_files = []
     json_datasets = []

@@ -4,6 +4,10 @@ Here, we describe how use the DetectronDistance repository for detecting people 
 
 In the following, We'll call the directory that you cloned DetectronDepth into `$DETECTRON_ROOT` and the folder where you keep your datasets `$DATASETS_DIR`. 
 
+## Installation
+
+Please follow the [Installation Instructions](INSTALL_DETECTRONDISTANCE.md) for the DetectronDistance code.
+
 ## Get Trained Mobility Aids Models
 
 Download and unpack the trained mobilityaids models we used in our RAS publication.

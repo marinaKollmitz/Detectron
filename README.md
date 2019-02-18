@@ -1,6 +1,8 @@
 # DetectronDistance
 
-This repository is a fork of Facebook's Detectron software system. It introduces an additional output for bounding box regression which estimates the distance of the object in a bounding box from the camera. We use this output to enable 3D people detection from RGB image data as part of the NaRKo project, see [mobility aids homepage](http://mobility-aids.informatik.uni-freiburg.de/).
+This repository is a fork of Facebook's Detectron software system. It introduces an additional output for bounding box regression which estimates the distance of the object in a bounding box from the camera. We use this output to enable 3D people detection from RGB or depth image data as part of the NaRKo project, see [mobility aids homepage](http://mobility-aids.informatik.uni-freiburg.de/).
+
+To get started with our code for detecting people according to their mobility aids, please have a look at the [MOBILITYAIDS_HOWTO](MOBILITYAIDS_HOWTO.md). 
 
 # Detectron
 

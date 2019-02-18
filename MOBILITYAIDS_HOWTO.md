@@ -4,14 +4,23 @@ Here, we describe how use the DetectronDistance repository for detecting people 
 
 In the following, We'll call the directory that you cloned DetectronDepth into `$DETECTRON_ROOT` and the folder where you keep your datasets `$DATASETS_DIR`. 
 
-## Run the people detection ROS node
+## Get Trained Mobility Aids Models
+
+Download and unpack the trained mobilityaids models we used in our RAS publication.
+
+```
+cd $DETECTRON_ROOT
+wget http://mobility-aids.informatik.uni-freiburg.de/mobilityaids_models.zip
+unzip mobilityaids_models.zip
+```
+
+## Run the mobilityaids detection ROS node
 
 If you only want to use the mobilityaids people detector as a ROS node, you don't need to do any of the following. Check out the [mobilityaids_detector repository](https://github.com/marinaKollmitz/mobilityaids_detector) and follow the instructions there.
 
 ## Download and Prepare the Dataset
 
 Download and unpack the dataset into a `$DATASETS_DIR` of your choice
-
 ```
 # setup folder for dataset
 cd $DATASETS_FOLDER
@@ -25,19 +34,8 @@ ln -sv $DATASETS_DIR/mobility-aids/ $DETECTRON_ROOT/detectron/datasets/data/
 ```
 
 Now generate coco-format labels for the mobilityaids dataset
-
 ```
 python2 $DETECTRON_ROOT/detectron/datasets/mobility_aids/generate_mobilityaids_coco_labels.py
-```
-
-## Get Trained Mobility Aids Models
-
-Download and unpack the trained mobilityaids models we used in our RAS publication.
-
-```
-cd $DETECTRON_ROOT
-wget http://mobility-aids.informatik.uni-freiburg.de/mobilityaids_models.zip
-unzip mobilityaids_models.zip
 ```
 
 ## Testing
@@ -47,15 +45,15 @@ unzip mobilityaids_models.zip
 To test the detection performance of our models on the mobilityaids dataset, use the `tools/test_net.py` script for the model you want to test. For example, to test the VGG-M RGB model on the mobilityaids test set, run 
 ```
 cd $DETECTRON_ROOT 
-python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl 
+python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml
 ```
 The script will output image APs and depth error APs at 0.25 and 0.5 meters. It will further save various results files to the output directory, some of which are used by the tracking module. The script uses our mobilityaids matlab evaluation. If you do not have matlab installed, you can use the coco evaluation to verify that the image detection is working
 ```
 cd $DETECTRON_ROOT 
 # to evaluate with coco if you dont have matlab
-python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl TEST.FORCE_JSON_DATASET_EVAL True
+python2 tools/test_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.FORCE_JSON_DATASET_EVAL True
 ```
-but it will not produce the same results (because it uses interpolated AP) and also generate no files.
+but it will not produce the same results (because it uses interpolated AP) and also generates no files.
 
 ### Test Tracking
 
@@ -71,6 +69,6 @@ export PYTHONPATH=$PYTHONPATH:$TRACKING_ROOT/multiclass-people-tracking/
 To test the performance of our probabilistic position, velocity and class estimation module, use the `tools/test_tracking.py` script for the model you want to test. For example, to test the tracking performance for the VGG-M RGB model on the mobilityaids tracking datasets, run
 ```
 cd $DETECTRON_ROOT 
-python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml TEST.WEIGHTS mobilityaids_models/VGG-M/train/mobilityaids_RGB_train/model_final.pkl
+python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml
 ```
-To produce the tracking metrics you need matlab. If you just want to look at the tracking in action, you can use the `--visualize` option to visualize the detections before and after filtering. Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule and the `--no-filtering` option if you just want to evaluate precision and recall for the thresholded detections, without filtering.
+To evaluate the tracking results you need matlab. If you just want to look at the tracking in action, you can use the `--visualize` option to visualize the detections before and after filtering (does not require matlab). Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule and the `--no-filtering` option if you just want to evaluate precision and recall for the thresholded detections, without filtering.

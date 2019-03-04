@@ -50,6 +50,13 @@ def parse_args():
         action='store_true'
     )
     parser.add_argument(
+        '--wait',
+        dest='wait',
+        help='wait until net file exists',
+        default=True,
+        type=bool
+    )
+    parser.add_argument(
         '--step', 
         dest='step', 
         help='(optional) wait for key stroke after each observation', 

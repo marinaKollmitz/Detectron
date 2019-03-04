@@ -87,7 +87,7 @@ For the RAS paper, we trained our mobilityaids models with additional examples f
 Download and unpack the enhanced InOutDoor labels:
 ```
 # go to mobilityaids dataset folder
-cd $DATASETS_FOLDER/mobility-aids/
+cd $DATASETS_FOLDER/mobility-aids/ 
 # download zipped InOutDoor annotations
 wget http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_InOutDoor_DepthJet.zip
 wget http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_InOutDoor_RGB.zip
@@ -103,6 +103,7 @@ cd $DATASET_FOLDER
 wget http://adaptivefusion.cs.uni-freiburg.de/dataset/InOutDoorPeopleRGBD.zip
 # unpack dataset
 unzip InOutDoorPeopleRGBD.zip 'InOutDoorPeopleRGBD/DepthJetQhd.tar.gz' 'InOutDoorPeopleRGBD/ImagesQhd.tar.gz'
+# unpack Image folders
 cd InOutDoorPeopleRGBD
 tar -zxvf ImagesQhd.tar.gz 
 tar -zxvf DepthJetQhd.tar.gz 
@@ -110,12 +111,30 @@ tar -zxvf DepthJetQhd.tar.gz
 Now you need to create links from the mobilityaids image folders to the InOutDoor images
 ```
 ln -sv $DATASETS_DIR/InOutDoorPeopleRGBD/ImagesQhd/* $DATASETS_DIR/mobility-aids/Images_RGB/
- ln -sv ~/datasets/InOutDoorPeopleRGBD/DepthJetQhd/* ~/datasets/mobility-aids/Images_DepthJet/
+ln -sv $DATASETS_DIR/InOutDoorPeopleRGBD/DepthJetQhd/* $DATASETS_DIR/mobility-aids/Images_DepthJet/
 ```
 Finally, to generate the new mobility aids label files with InOutDoor examples, run
 ```
 python2 $DETECTRON_ROOT/detectron/datasets/mobility_aids/generate_mobilityaids_coco_labels.py --with_InOutDoor
 ```
-
+To train a model, e.g. the VGG-M model on RGB data, run the `train_net.py` script:
+```
+cd $DETECTRON_ROOT
+python2 tools/train_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml 
+```
 ### without InOutDoor examples
 
+If you want to train a DetectronDistance model without the additional InOutDoor examples, specify the `mobilityaids_<DepthJet/RGB>_train` dataset for training. You can do this by changing the `TRAIN.DATASETS` entry in the `.yaml` config file. For example, for training a VGG-M network on RGB data without InOutDoor examples, open `$DETECTRON_ROOT/mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml` and change it to:
+```
+...
+TRAIN:
+   ...
+   DATASETS: ('mobilityaids_RGB_train,)
+   ...
+```
+To train, run the `train_net.py` script with your adapted `.yaml` config:
+```
+cd $DETECTRON_ROOT
+python2 tools/train_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml 
+```
+The test results will be slightly worse that training with the InOutDoor examples, especially for the pedestrian class.

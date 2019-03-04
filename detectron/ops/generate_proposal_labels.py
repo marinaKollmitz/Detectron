@@ -48,6 +48,7 @@ class GenerateProposalLabelsOp(object):
         # not matter).
         json_dataset.add_proposals(roidb, rois, im_scales, crowd_thresh=0)
         roidb_utils.add_bbox_regression_targets(roidb)
+        roidb_utils.add_depth_regression_targets(roidb)
         blobs = {k: [] for k in output_blob_names}
         fast_rcnn_roi_data.add_fast_rcnn_blobs(blobs, im_scales, roidb)
         for i, k in enumerate(output_blob_names):

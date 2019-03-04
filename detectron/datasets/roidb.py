@@ -186,23 +186,34 @@ def compute_bbox_regression_targets(entry):
 def compute_depth_targets(entry):
     """Compute centroid depth regression targets for an image."""
     # Indices of ground-truth distances from bbox centroid to camera
-    depths = entry['depths']
+    
+    rois = entry['boxes']
     overlaps = entry['max_overlaps']
     labels = entry['max_classes']
     gt_inds = np.where((entry['gt_classes'] > 0) & (entry['is_crowd'] == 0))[0]
-    # Targets has format (class, td=0)
-    targets = np.zeros((depths.shape[0], 2), dtype=np.float32)
+    
+    # Targets has format (class, depth)
+    targets = np.zeros((labels.shape[0], 2), dtype=np.float32)
     if len(gt_inds) == 0:
         # Bail if the image has no ground-truth ROIs
         return targets
-
+    
     # Indices of examples for which we try to make predictions
     ex_inds = np.where(overlaps >= cfg.TRAIN.BBOX_THRESH)[0]
-
+    
+    # Get IoU overlap between each ex ROI and gt ROI
+    ex_gt_overlaps = box_utils.bbox_overlaps(
+        rois[ex_inds, :].astype(dtype=np.float32, copy=False),
+        rois[gt_inds, :].astype(dtype=np.float32, copy=False))
+    
     # Find which gt ROI each ex ROI has max overlap with:
     # this will be the ex ROI's gt target
+    gt_assignment = ex_gt_overlaps.argmax(axis=1)
+    gt_depths = entry['depths'][gt_inds, :]
+    
     targets[ex_inds, 0] = (
         1 if cfg.MODEL.CLS_AGNOSTIC_BBOX_REG else labels[ex_inds])
+    targets[ex_inds, 1:] = gt_depths[gt_assignment, :]
     
     return targets
 

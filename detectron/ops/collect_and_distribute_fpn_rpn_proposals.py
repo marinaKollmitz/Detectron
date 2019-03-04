@@ -55,6 +55,7 @@ class CollectAndDistributeFpnRpnProposalsOp(object):
             # not matter).
             json_dataset.add_proposals(roidb, rois, im_scales, crowd_thresh=0)
             roidb_utils.add_bbox_regression_targets(roidb)
+            roidb_utils.add_depth_regression_targets(roidb)
             # Compute training labels for the RPN proposals; also handles
             # distributing the proposals over FPN levels
             output_blob_names = fast_rcnn_roi_data.get_fast_rcnn_blob_names()

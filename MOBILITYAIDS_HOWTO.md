@@ -76,3 +76,46 @@ cd $DETECTRON_ROOT
 python2 tools/test_tracking.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml
 ```
 To evaluate the tracking results you need matlab. If you just want to look at the tracking in action, you can use the `--visualize` option to visualize the detections before and after filtering (does not require matlab). Use the `--step` option to pause between frames. Press any key to go to the next frame. Use the `--ekf-only` option if you want to test the performance without the HMM mobule and the `--no-filtering` option if you just want to evaluate precision and recall for the thresholded detections, without filtering.
+
+## Training
+
+### get pretrained models
+
+### with InOutDoor examples
+For the RAS paper, we trained our mobilityaids models with additional examples from the InOutDoor dataset, seq. 0-2. To this end, we enhanced the InOutDoor annotations with centroid depth labels. 
+
+Download and unpack the enhanced InOutDoor labels:
+```
+# go to mobilityaids dataset folder
+cd $DATASETS_FOLDER/mobility-aids/
+# download zipped InOutDoor annotations
+wget http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_InOutDoor_DepthJet.zip
+wget http://mobility-aids.informatik.uni-freiburg.de/dataset/Annotations_InOutDoor_RGB.zip
+# unzip annotations
+unzip Annotations_InOutDoor_DepthJet.zip 
+unzip Annotations_InOutDoor_RGB.zip
+```
+Download and unpack the InOutDoor dataset:
+```
+# go to dataset folder
+cd $DATASET_FOLDER
+# download InOutDoor dataset
+wget http://adaptivefusion.cs.uni-freiburg.de/dataset/InOutDoorPeopleRGBD.zip
+# unpack dataset
+unzip InOutDoorPeopleRGBD.zip 'InOutDoorPeopleRGBD/DepthJetQhd.tar.gz' 'InOutDoorPeopleRGBD/ImagesQhd.tar.gz'
+cd InOutDoorPeopleRGBD
+tar -zxvf ImagesQhd.tar.gz 
+tar -zxvf DepthJetQhd.tar.gz 
+```
+Now you need to create links from the mobilityaids image folders to the InOutDoor images
+```
+ln -sv $DATASETS_DIR/InOutDoorPeopleRGBD/ImagesQhd/* $DATASETS_DIR/mobility-aids/Images_RGB/
+ ln -sv ~/datasets/InOutDoorPeopleRGBD/DepthJetQhd/* ~/datasets/mobility-aids/Images_DepthJet/
+```
+Finally, to generate the new mobility aids label files with InOutDoor examples, run
+```
+python2 $DETECTRON_ROOT/detectron/datasets/mobility_aids/generate_mobilityaids_coco_labels.py --with_InOutDoor
+```
+
+### without InOutDoor examples
+

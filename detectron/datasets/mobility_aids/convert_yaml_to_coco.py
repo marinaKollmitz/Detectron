@@ -4,12 +4,9 @@ import yaml
 import json
 import os
 
-def yaml_to_json(imageset_file, annotation_dir, output_filename, classes):
+def yaml_to_json(annotation_files, output_filename, classes):
     
-    print("converting annotations for ", imageset_file)
-    
-    with open(imageset_file, 'r') as stream:
-        annotation_files = stream.readlines()
+    print("converting annotations for ", output_filename)
     
     images = []
     annotations = []
@@ -33,10 +30,8 @@ def yaml_to_json(imageset_file, annotation_dir, output_filename, classes):
     annotations = []
     
     for annotation_file in annotation_files:
-        ann_file = annotation_dir + annotation_file[0:-1]
-        ann_file = ann_file + '.yml'
-    
-        with open(ann_file, 'r') as stream:
+
+        with open(annotation_file, 'r') as stream:
             image_dict = dict()
             annotation_dict = dict()
     

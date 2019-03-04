@@ -105,7 +105,7 @@ if __name__ == '__main__':
             yaml_to_json(annotation_files_DJ, output_filename_DJ, classes)
         
         else:
-            print "%s exists, no need to generate" % output_filename
+            print "%s exists, no need to generate" % output_filename_DJ
             
         imageset_files_RGB = [os.path.join(mobilityaids_dir, "ImageSets/TrainSet_RGB.txt"),
                               os.path.join(mobilityaids_dir, "ImageSets/TrainAdditional_InOutDoor.txt")]
@@ -132,4 +132,4 @@ if __name__ == '__main__':
             yaml_to_json(annotation_files_RGB, output_filename_RGB, classes)
         
         else:
-            print "%s exists, no need to generate" % output_filename
+            print "%s exists, no need to generate" % output_filename_RGB

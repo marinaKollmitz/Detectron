@@ -76,8 +76,8 @@ def _do_matlab_box_eval(json_dataset, res_file, output_dir):
     json_file = get_ann_fn(json_dataset.name)
     
     #TODO possible to format this easier?
-    json_files_string = ('[\\"' + '\\",\\"'.join([json_file]) + '\\"]')
-    res_files_string = ('[\\"' + '\\",\\"'.join([res_file]) + '\\"]')
+    json_files_string = ("[string(\'" + ")\',string(\'".join([json_file]) + "\')]")
+    res_files_string = ("[string(\'" + ")\',string(\'".join([res_file]) + "\')]")
     
     logger.info('---------------------------------------------------------')
     logger.info('Computing results with the mobilityaids MATLAB eval code.')
@@ -99,8 +99,8 @@ def _do_matlab_tracking_eval(json_datasets, res_files, output_dir):
     json_files = [get_ann_fn(json_dataset.name) for json_dataset in json_datasets]
     
     #TODO possible to format this easier?
-    json_files_string = ('[\\"' + '\\",\\"'.join(json_files) + '\\"]')
-    res_files_string = ('[\\"' + '\\",\\"'.join(res_files) + '\\"]')
+    json_files_string = ("[string(\'" + "\'),string(\'".join(json_files) + "\')]")
+    res_files_string = ("[string(\'" + "\'),string(\'".join(res_files) + "\')]")
     
     logger.info('------------------------------------------------------------------')
     logger.info('Computing tracking results with the mobilityaids MATLAB eval code.')

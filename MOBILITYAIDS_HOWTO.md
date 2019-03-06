@@ -80,8 +80,14 @@ To evaluate the tracking results you need matlab. If you just want to look at th
 ## Training
 
 ### Get Pretrained Models
+We used models pretrained on imagenet to initialize the network weights. To download them:
+```
+cd $DETECTRON_ROOT 
+wget http://mobility-aids.informatik.uni-freiburg.de/pretrained.zip
+unzip pretrained.zip
+```
 
-### With InOutDoor Examples
+### Train With InOutDoor Examples
 For the RAS paper, we trained our mobilityaids models with additional examples from the InOutDoor dataset, seq. 0-2. To this end, we enhanced the InOutDoor annotations with centroid depth labels. 
 
 Download and unpack the enhanced InOutDoor labels:
@@ -122,7 +128,7 @@ To train a model, e.g. the VGG-M model on RGB data, run the `train_net.py` scrip
 cd $DETECTRON_ROOT
 python2 tools/train_net.py --cfg mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml 
 ```
-### Without InOutDoor Examples
+### Train Without InOutDoor Examples
 
 If you want to train a DetectronDistance model without the additional InOutDoor examples, specify the `mobilityaids_<DepthJet/RGB>_train` dataset for training. You can do this by changing the `TRAIN.DATASETS` entry in the `.yaml` config file. For example, for training a VGG-M network on RGB data without InOutDoor examples, open `$DETECTRON_ROOT/mobilityaids_models/VGG-M/faster_rcnn_VGG-M_RGB.yaml` and change it to:
 ```

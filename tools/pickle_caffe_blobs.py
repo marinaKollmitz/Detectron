@@ -87,10 +87,19 @@ def normalize_resnet_name(name):
         )
     return name
 
+#Replace "/" with "-" so blobs can be converted correctly
+def normalize_googlenet_name(name):
+    name = name.replace('/', '-')
+    return name
+
 
 def pickle_weights(out_file_name, weights):
     blobs = {
         normalize_resnet_name(blob.name): utils.Caffe2TensorToNumpyArray(blob)
+        for blob in weights.protos
+    }
+    blobs = {
+        normalize_googlenet_name(blob.name): utils.Caffe2TensorToNumpyArray(blob)
         for blob in weights.protos
     }
     with open(out_file_name, 'w') as f:

@@ -62,7 +62,7 @@ _DATASETS = {
     },
     'mobilityaids_DepthJet_train_w_InOutDoor': {
         _IM_DIR:
-            _DATA_DIR + '/mobility-aids/Images_RGB',
+            _DATA_DIR + '/mobility-aids/Images_DepthJet',
         _ANN_FN:
             _DATA_DIR + '/mobility-aids/annotations/train_DepthJet_w_InOutDoor.json',
     },

@@ -25,7 +25,9 @@ for i = 1:length(gt_intervals)
         quantiles = quantile(in_bins, [0.5, 0.75, 0.25, 0.95, 0.05]);
         depth_error_quantiles(i,:) = quantiles;
         interval_outliers = in_bins(in_bins>quantiles(end-1));
-        max_out = transpose(maxk(interval_outliers,3));
+        interval_outliers = sort(interval_outliers, 'descend');
+        interval_outliers = [interval_outliers; -1*ones(3-length(interval_outliers),1)];
+        max_out = transpose(interval_outliers(1:3));
         max_outliers(i,1:length(max_out)) = max_out;
     end
     

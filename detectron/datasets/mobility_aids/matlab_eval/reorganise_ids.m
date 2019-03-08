@@ -21,11 +21,6 @@ for i=1:length(detections)
         labels_i.annotations(k).image_id = labels_i.annotations(k).image_id + image_counter;
     end
     
-    %TODO image ids
-    %for l=1:length(labels.images)
-    %    
-    %end
-    
     labels_counter = labels_counter + length(labels_i.annotations);
     detection_counter = detection_counter + length(detections_i);
     image_counter = image_counter + length(labels_i.images);
@@ -45,8 +40,6 @@ for i=1:length(detections)
         all_detections(end+1:end+length(detections_i)) = detections_i;
     end
     
-%     labels{i} = labels_i;
-%     detections{i} = detections_i;
 end
 
 end
